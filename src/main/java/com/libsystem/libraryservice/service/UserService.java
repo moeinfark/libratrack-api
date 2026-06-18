@@ -20,10 +20,6 @@ public class UserService {
     };
 
     public User addUser(User theUser) {
-
-        if (userRepository.existsById(theUser.getId())) {
-            throw new RuntimeException("User with id " + theUser.getId() + " already exists");
-        }
         return userRepository.save(theUser);
     }
 

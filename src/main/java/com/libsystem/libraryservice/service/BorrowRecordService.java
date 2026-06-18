@@ -72,7 +72,7 @@ public class BorrowRecordService {
 
     @Transactional
     public String deleteBorrowRecordByBookId(Long bookId) {
-        if (bookId == null || bookService.findBookById(bookId) == null) {
+        if (bookId == null) {
             throw new BorrowRecordException("Please enter valid Book ID!");
         }
 
@@ -81,7 +81,9 @@ public class BorrowRecordService {
             throw new BorrowRecordException("this book hasn't been borrowed!");
         }
 
-        bookService.findBookById(bookId).setAvailable(true);
+        Book book =bookService.findBookById(bookId);
+        book.setAvailable(true);
+        bookService.editBook(book);
 
         borrowRecordRepository.delete(borrowRecord);
         return "User with user-id: "+ borrowRecord.getUserId()+ " has returned book with id " + bookId ;

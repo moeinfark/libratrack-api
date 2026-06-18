@@ -35,11 +35,13 @@ public class UserRestController {
 
     @PostMapping
     public User addUser(@RequestBody User user){
+        user.setId(null);
         return userService.addUser(user);
     }
 
     @PutMapping("/{userId}")
-    public User updateUser(@PathVariable String userId, @RequestBody User user){
+    public User updateUser(@PathVariable Long userId, @RequestBody User user){
+        user.setId(userId);
         return userService.editUser(user);
     }
 
