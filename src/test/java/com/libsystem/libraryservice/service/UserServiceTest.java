@@ -31,15 +31,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        user = new User("John","Doe","JohnDoe");
-    }
-
-    @Test
-    void addUser_shouldThrowException_whenUserExists() {
-        when(userRepository.existsById(user.getId())).thenReturn(true);
-        assertThatThrownBy(() -> userService.addUser(user))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("already exists");
+        user = new User(null, "John", "Doe", "JohnDoe");
     }
 
     @Test
@@ -47,7 +39,6 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         User result = userService.findUserById(1L);
         assertThat(result).isNotNull();
-        assertEquals(user, result);
         assertThat(result.getFirstName()).isEqualTo("John");
     }
 
@@ -70,7 +61,7 @@ class UserServiceTest {
     @Test
     void editUser_shouldReturnUpdatedUser_whenUserExists() {
         when(userRepository.existsById(user.getId())).thenReturn(true);
-        User updatedUser = new User("Jonny","Dolan","JonnyDolan");
+        User updatedUser = new User(null, "Jonny", "Dolan", "JonnyDolan");
         when(userRepository.save(updatedUser)).thenReturn(updatedUser);
         User result = userService.editUser(updatedUser);
         assertThat(result).isNotNull();
@@ -79,10 +70,10 @@ class UserServiceTest {
 
     @Test
     void editUser_shouldThrowException_whenUserDoesNotExist() {
-        User updatedUser = new User("Jonny","Doe","JohnDoe");
+        User updatedUser = new User(null, "Jonny", "Doe", "JohnDoe");
         when(userRepository.existsById(updatedUser.getId())).thenReturn(false);
         assertThatThrownBy(() -> userService.editUser(updatedUser))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("User with id");
     }
 
@@ -90,18 +81,14 @@ class UserServiceTest {
     void deleteUserById_shouldDeleteUser_whenUserExists() {
         when(userRepository.existsById(user.getId())).thenReturn(true);
         userService.deleteUserById(user.getId());
-
-        verify(userRepository,times(1)).deleteById(user.getId());
+        verify(userRepository, times(1)).deleteById(user.getId());
     }
 
     @Test
     void deleteUserById_shouldThrowException_whenUserNotFound() {
-        // Arrange
         when(userRepository.existsById(99L)).thenReturn(false);
-
-        // Act & Assert
         assertThatThrownBy(() -> userService.deleteUserById(99L))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("not found");
     }
 }

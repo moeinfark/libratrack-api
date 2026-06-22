@@ -17,9 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,13 +39,13 @@ class BorrowRecordServiceTest {
 
     @BeforeEach
     void setUp() {
-        availableBook = new Book("Unit Test", "Moein", "12345678",true);
+        availableBook = new Book(null, "Unit Test", "Moein", "12345678", true);
         availableBook.setBookId(1000001L);
 
-        unavailableBook = new Book("Unit Test", "Moein", "12345678",false);
+        unavailableBook = new Book(null, "Unit Test", "Moein", "12345678", false);
         unavailableBook.setBookId(1000002L);
 
-        user = new User("John", "Doe", "JohnDoe");
+        user = new User(null, "John", "Doe", "JohnDoe");
     }
 
     @Test
@@ -87,13 +85,12 @@ class BorrowRecordServiceTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getBookId()).isEqualTo(1000001L);
-        assertThat(result.getUserId()).isEqualTo(user.getId());
+        assertThat(result.getUserId()).isEqualTo(1L);
         verify(bookService, times(1)).editBook(availableBook);
     }
 
     @Test
     void deleteBorrowRecord_shouldThrowException_whenBookNotBorrowed() {
-        when(bookService.findBookById(1000001L)).thenReturn(availableBook);
         when(borrowRecordRepository.findBorrowRecordByBookId(1000001L)).thenReturn(null);
 
         assertThatThrownBy(() -> borrowRecordService.deleteBorrowRecordByBookId(1000001L))
@@ -107,8 +104,8 @@ class BorrowRecordServiceTest {
         borrowRecord.setBookId(1000001L);
         borrowRecord.setUserId(1L);
 
-        when(bookService.findBookById(1000001L)).thenReturn(availableBook);
         when(borrowRecordRepository.findBorrowRecordByBookId(1000001L)).thenReturn(borrowRecord);
+        when(bookService.findBookById(1000001L)).thenReturn(availableBook);
 
         String result = borrowRecordService.deleteBorrowRecordByBookId(1000001L);
 
@@ -125,7 +122,7 @@ class BorrowRecordServiceTest {
 
         List<BorrowRecord> result = borrowRecordService.findAllBorrowRecordByUserId(1L);
 
-        assertThat(result).hasSize(1);;
+        assertThat(result).hasSize(1);
         assertThat(result.get(0).getUserId()).isEqualTo(1L);
     }
 

@@ -31,7 +31,7 @@ class BookServiceTest {
 
     @BeforeEach
     void setUp() {
-        book = new Book("Clean Code", "Robert C. Martin", "978-0132350884", true);
+        book = new Book(null, "Clean Code", "Robert C. Martin", "978-0132350884", true);
     }
 
     @Test
