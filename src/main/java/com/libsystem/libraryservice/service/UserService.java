@@ -41,14 +41,14 @@ public class UserService {
 
     public User editUser(User theUser) {
         if (!userRepository.existsById(theUser.getId())) {
-            throw new RuntimeException("User with id - " + theUser.getId() + " not found");
+            throw new NotFoundException("User with id - " + theUser.getId() + " not found");
         }
         return userRepository.save(theUser);
     }
 
     public void deleteUserById(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User with id - " + id + " not found");
+            throw new NotFoundException("User with id - " + id + " not found");
         }
         userRepository.deleteById(id);
     }

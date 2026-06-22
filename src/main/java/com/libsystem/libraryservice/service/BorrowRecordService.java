@@ -40,7 +40,7 @@ public class BorrowRecordService {
             User user = userService.findUserById(userId);
 
 
-            if (book.getAvailable() == false) {
+            if (book.getIsAvailable() == false) {
                 String message = "book with id " + bookId + " is already borrowed! ";
 
                 List<Long> availableAlternatives = bookService.findAllAvailableBooksByIsbn(book.getBookISBN());
@@ -57,7 +57,7 @@ public class BorrowRecordService {
 
             borrowRecordRepository.save(borrowRecord);
 
-            book.setAvailable(false);
+            book.setIsAvailable(false);
             bookService.editBook(book);
 
             return borrowRecord;
@@ -82,7 +82,7 @@ public class BorrowRecordService {
         }
 
         Book book =bookService.findBookById(bookId);
-        book.setAvailable(true);
+        book.setIsAvailable(true);
         bookService.editBook(book);
 
         borrowRecordRepository.delete(borrowRecord);
