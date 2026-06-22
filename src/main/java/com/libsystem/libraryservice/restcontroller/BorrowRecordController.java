@@ -1,50 +1,64 @@
 package com.libsystem.libraryservice.restcontroller;
 
-import com.libsystem.libraryservice.entity.BorrowRecord;
+import com.libsystem.libraryservice.dto.request.BorrowRequest;
+import com.libsystem.libraryservice.dto.response.BorrowRecordResponse;
+import com.libsystem.libraryservice.mapper.LibraryMapper;
 import com.libsystem.libraryservice.service.BookService;
 import com.libsystem.libraryservice.service.BorrowRecordService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/borrow-records")
+@RequestMapping("/api/borrow-records")
 public class BorrowRecordController {
 
+    private final BorrowRecordService borrowRecordService;
     private final BookService bookService;
-    BorrowRecordService borrowRecordService;
+    private final LibraryMapper mapper;
 
     @Autowired
-    public BorrowRecordController(BorrowRecordService borrowRecordService, BookService bookService) {
+    public BorrowRecordController(BorrowRecordService borrowRecordService,
+                                  BookService bookService,
+                                  LibraryMapper mapper) {
         this.borrowRecordService = borrowRecordService;
         this.bookService = bookService;
-    }
-
-    @PostMapping
-    public BorrowRecord addBorrowRecord(@RequestBody BorrowRecord borrowRecord) {
-        return borrowRecordService.addBorrowRecord(borrowRecord.getUserId(), borrowRecord.getBookId());
-
-    }
-
-    @DeleteMapping("/{bookId}")
-    public String removeBorrowRecordByBookId(@PathVariable Long bookId) {
-        return borrowRecordService.deleteBorrowRecordByBookId(bookId);
+        this.mapper = mapper;
     }
 
     @GetMapping
-    public List<BorrowRecord> getAllBorrowRecords() {
-        return borrowRecordService.getAll();
+    public ResponseEntity<List<BorrowRecordResponse>> getAllBorrowRecords() {
+        List<BorrowRecordResponse> records = borrowRecordService.getAll()
+                .stream()
+                .map(mapper::toBorrowRecordResponse)
+                .toList();
+        return ResponseEntity.ok(records);
+    }
+
+    @PostMapping
+    public ResponseEntity<BorrowRecordResponse> addBorrowRecord(@Valid @RequestBody BorrowRequest request) {
+        BorrowRecordResponse response = mapper.toBorrowRecordResponse(
+                borrowRecordService.addBorrowRecord(request.getUserId(), request.getBookId())
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @DeleteMapping("/{bookId}")
+    public ResponseEntity<String> returnBook(@PathVariable Long bookId) {
+        return ResponseEntity.ok(borrowRecordService.deleteBorrowRecordByBookId(bookId));
     }
 
     @GetMapping("/borrowed/book-ids")
-    public List<Long> getAllBorrowedBookIds() {
-        return borrowRecordService.findAllBorrowedBookIds();
+    public ResponseEntity<List<Long>> getAllBorrowedBookIds() {
+        return ResponseEntity.ok(borrowRecordService.findAllBorrowedBookIds());
     }
 
     @GetMapping("/available/book-ids")
-    public List<Long> getAllAvailableBookIds() {
-        return bookService.findAllAvailableBookIds();
+    public ResponseEntity<List<Long>> getAllAvailableBookIds() {
+        return ResponseEntity.ok(bookService.findAllAvailableBookIds());
     }
-
 }

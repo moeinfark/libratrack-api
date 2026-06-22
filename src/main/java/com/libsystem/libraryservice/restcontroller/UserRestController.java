@@ -1,63 +1,81 @@
 package com.libsystem.libraryservice.restcontroller;
 
-import com.libsystem.libraryservice.entity.BorrowRecord;
-import com.libsystem.libraryservice.entity.User;
+import com.libsystem.libraryservice.dto.request.UserCreateRequest;
+import com.libsystem.libraryservice.dto.request.UserUpdateRequest;
+import com.libsystem.libraryservice.dto.response.BorrowRecordResponse;
+import com.libsystem.libraryservice.dto.response.UserResponse;
+import com.libsystem.libraryservice.mapper.LibraryMapper;
 import com.libsystem.libraryservice.service.BorrowRecordService;
 import com.libsystem.libraryservice.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController()
+@RestController
 @RequestMapping("/api/users")
 public class UserRestController {
 
-
-    UserService userService;
-    BorrowRecordService borrowRecordService;
+    private final UserService userService;
+    private final BorrowRecordService borrowRecordService;
+    private final LibraryMapper mapper;
 
     @Autowired
-    public UserRestController(UserService userService, BorrowRecordService borrowRecordService) {
+    public UserRestController(UserService userService,
+                              BorrowRecordService borrowRecordService,
+                              LibraryMapper mapper) {
         this.userService = userService;
         this.borrowRecordService = borrowRecordService;
+        this.mapper = mapper;
     }
 
-    @GetMapping()
-    public List<User> getAllUsers(){
-        return userService.getAllUsers();
+    @GetMapping
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
+        List<UserResponse> users = userService.getAllUsers()
+                .stream()
+                .map(mapper::toUserResponse)
+                .toList();
+        return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/{userID}")
-    public User getUserById(@PathVariable Long userID){
-        return userService.findUserById(userID);
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
+        return ResponseEntity.ok(mapper.toUserResponse(userService.findUserById(userId)));
     }
 
     @PostMapping
-    public User addUser(@RequestBody User user){
-        user.setId(null);
-        return userService.addUser(user);
+    public ResponseEntity<UserResponse> addUser(@Valid @RequestBody UserCreateRequest request) {
+        UserResponse response = mapper.toUserResponse(userService.addUser(mapper.toUser(request)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{userId}")
-    public User updateUser(@PathVariable Long userId, @RequestBody User user){
-        user.setId(userId);
-        return userService.editUser(user);
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long userId,
+                                                   @Valid @RequestBody UserUpdateRequest request) {
+        UserResponse response = mapper.toUserResponse(userService.editUser(mapper.updateUser(request, userId)));
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{userId}")
-    public String deleteUser(@PathVariable Long userId){
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userService.deleteUserById(userId);
-        return "User with id - " + userId + " deleted";
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{userId}/borrow-records")
-    public List<BorrowRecord> getBorrowRecordsByUserId(@PathVariable Long userId){
-        return borrowRecordService.findAllBorrowRecordByUserId(userId);
+    public ResponseEntity<List<BorrowRecordResponse>> getBorrowRecordsByUserId(@PathVariable Long userId) {
+        List<BorrowRecordResponse> records = borrowRecordService.findAllBorrowRecordByUserId(userId)
+                .stream()
+                .map(mapper::toBorrowRecordResponse)
+                .toList();
+        return ResponseEntity.ok(records);
     }
 
     @GetMapping("/borrow-records")
-    public List<Long> getAllBorrowedBookIds(){
-        return borrowRecordService.findAllBorrowedBookIds();
+    public ResponseEntity<List<Long>> getAllBorrowedBookIds() {
+        return ResponseEntity.ok(borrowRecordService.findAllBorrowedBookIds());
     }
 }
