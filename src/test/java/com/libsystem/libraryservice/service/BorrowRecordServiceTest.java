@@ -45,7 +45,11 @@ class BorrowRecordServiceTest {
         unavailableBook = new Book(null, "Unit Test", "Moein", "12345678", false);
         unavailableBook.setBookId(1000002L);
 
-        user = new User(null, "John", "Doe", "JohnDoe");
+        user = User.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .userName("JohnDoe")
+                .build();
     }
 
     @Test

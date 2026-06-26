@@ -31,7 +31,11 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        user = new User(null, "John", "Doe", "JohnDoe");
+        user = User.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .userName("JohnDoe")
+                .build();
     }
 
     @Test
@@ -61,7 +65,11 @@ class UserServiceTest {
     @Test
     void editUser_shouldReturnUpdatedUser_whenUserExists() {
         when(userRepository.existsById(user.getId())).thenReturn(true);
-        User updatedUser = new User(null, "Jonny", "Dolan", "JonnyDolan");
+        User updatedUser = User.builder()
+                .firstName("Jonny")
+                .lastName("Dolan")
+                .userName("JonnyDolan")
+                .build();
         when(userRepository.save(updatedUser)).thenReturn(updatedUser);
         User result = userService.editUser(updatedUser);
         assertThat(result).isNotNull();
@@ -70,7 +78,11 @@ class UserServiceTest {
 
     @Test
     void editUser_shouldThrowException_whenUserDoesNotExist() {
-        User updatedUser = new User(null, "Jonny", "Doe", "JohnDoe");
+        User updatedUser = User.builder()
+                .firstName("Jonny")
+                .lastName("Doe")
+                .userName("JohnDoe")
+                .build();
         when(userRepository.existsById(updatedUser.getId())).thenReturn(false);
         assertThatThrownBy(() -> userService.editUser(updatedUser))
                 .isInstanceOf(NotFoundException.class)
