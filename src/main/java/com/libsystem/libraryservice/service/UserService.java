@@ -4,6 +4,8 @@ import com.libsystem.libraryservice.entity.User;
 import com.libsystem.libraryservice.repository.UserRepository;
 import com.libsystem.libraryservice.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,10 +37,9 @@ public class UserService {
         }
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public Page<User> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
-
     public User editUser(User theUser) {
         if (!userRepository.existsById(theUser.getId())) {
             throw new NotFoundException("User with id - " + theUser.getId() + " not found");
