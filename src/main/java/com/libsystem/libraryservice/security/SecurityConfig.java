@@ -3,8 +3,10 @@ package com.libsystem.libraryservice.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -30,9 +33,20 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "MEMBER")
-                        .requestMatchers("/api/books/**").hasAnyRole("ADMIN", "MEMBER")
-                        .requestMatchers("/api/borrow-records/**").hasAnyRole("ADMIN", "MEMBER")
+
+                        // Users
+                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
+
+                        // Books
+                        .requestMatchers(HttpMethod.POST, "/api/books").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/books/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/books/**").hasRole("ADMIN")
+
+                        // Borrow Records
+                        .requestMatchers(HttpMethod.GET, "/api/borrow-records").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
