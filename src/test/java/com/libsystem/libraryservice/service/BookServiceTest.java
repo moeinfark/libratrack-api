@@ -9,6 +9,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -70,10 +74,11 @@ class BookServiceTest {
 
     @Test
     void getAllBooks_shouldReturnAllBooks() {
-        when(bookRepository.findAll()).thenReturn(Arrays.asList(book));
-        List<Book> result = bookService.getAllBooks();
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getBookName()).isEqualTo("Clean Code");
+        Pageable pageable = PageRequest.of(0, 10);
+        when(bookRepository.findAll(pageable)).thenReturn(new PageImpl<>(Arrays.asList(book)));
+        Page<Book> result = bookService.getAllBooks(pageable);
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getBookName()).isEqualTo("Clean Code");
     }
 
     @Test

@@ -11,6 +11,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -142,10 +146,9 @@ class BorrowRecordServiceTest {
 
     @Test
     void getAll_shouldReturnAllBorrowRecords() {
-        when(borrowRecordRepository.findAll()).thenReturn(Arrays.asList(new BorrowRecord()));
-
-        List<BorrowRecord> result = borrowRecordService.getAll();
-
-        assertThat(result).hasSize(1);
+        Pageable pageable = PageRequest.of(0, 10);
+        when(borrowRecordRepository.findAll(pageable)).thenReturn(new PageImpl<>(Arrays.asList(new BorrowRecord())));
+        Page<BorrowRecord> result = borrowRecordService.getAll(pageable);
+        assertThat(result.getContent()).hasSize(1);
     }
 }
