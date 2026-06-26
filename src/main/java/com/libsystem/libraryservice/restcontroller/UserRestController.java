@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,6 +43,7 @@ public class UserRestController {
     }
 
     @GetMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
         return ResponseEntity.ok(mapper.toUserResponse(userService.findUserById(userId)));
     }
@@ -53,6 +55,7 @@ public class UserRestController {
     }
 
     @PutMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long userId,
                                                    @Valid @RequestBody UserUpdateRequest request) {
         UserResponse response = mapper.toUserResponse(userService.editUser(mapper.updateUser(request, userId)));
@@ -66,6 +69,7 @@ public class UserRestController {
     }
 
     @GetMapping("/{userId}/borrow-records")
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<List<BorrowRecordResponse>> getBorrowRecordsByUserId(@PathVariable Long userId) {
         List<BorrowRecordResponse> records = borrowRecordService.findAllBorrowRecordByUserId(userId)
                 .stream()
