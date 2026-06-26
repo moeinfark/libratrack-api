@@ -6,6 +6,8 @@ import com.libsystem.libraryservice.entity.User;
 import com.libsystem.libraryservice.exception.BorrowRecordException;
 import com.libsystem.libraryservice.repository.BorrowRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,8 +99,7 @@ public class BorrowRecordService {
         return borrowRecordRepository.getAllBookIds();
     }
 
-    public List<BorrowRecord> getAll() {
-        return borrowRecordRepository.findAll();
+    public Page<BorrowRecord> getAll(Pageable pageable) {
+        return borrowRecordRepository.findAll(pageable);
     }
-
 }
