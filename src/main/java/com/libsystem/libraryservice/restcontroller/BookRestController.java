@@ -7,6 +7,9 @@ import com.libsystem.libraryservice.mapper.LibraryMapper;
 import com.libsystem.libraryservice.service.BookService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,11 +30,10 @@ public class BookRestController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BookResponse>> getAllBooks() {
-        List<BookResponse> books = bookService.getAllBooks()
-                .stream()
-                .map(mapper::toBookResponse)
-                .toList();
+    public ResponseEntity<Page<BookResponse>> getAllBooks(
+            @PageableDefault(size = 10, sort = "bookName")Pageable pageable) {
+        Page<BookResponse> books = bookService.getAllBooks(pageable)
+                .map(mapper::toBookResponse);
         return ResponseEntity.ok(books);
     }
 

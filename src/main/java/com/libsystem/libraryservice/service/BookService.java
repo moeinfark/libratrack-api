@@ -4,6 +4,8 @@ import com.libsystem.libraryservice.entity.Book;
 import com.libsystem.libraryservice.exception.NotFoundException;
 import com.libsystem.libraryservice.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,8 +38,8 @@ public class BookService {
         return book.get();
     }
 
-    public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+    public Page<Book> getAllBooks(Pageable pageable) {
+        return bookRepository.findAll(pageable);
     }
 
     public Book editBook(Book book) {
