@@ -63,7 +63,7 @@ public class LibraryMapper {
                 .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .userName(user.getUserName())
+                .userName(user.getUsername())
                 .build();
     }
 
